@@ -1,19 +1,24 @@
 import { type AppType } from "next/app";
-import { Geist } from "next/font/google";
-
+import React from "react";
+import {ToastContainer} from 'react-toastify';
 import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
-
-const geist = Geist({
-  subsets: ["latin"],
-});
+import { ClerkProvider } from "@clerk/nextjs";
+import { neobrutalism } from '@clerk/themes'
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
-    <div className={geist.className}>
-      <Component {...pageProps} />
-    </div>
+    <ClerkProvider
+      appearance={{
+        theme: 'simple',
+      }}
+    >
+      <div>
+        <Component {...pageProps} />
+        <ToastContainer autoClose={3000} pauseOnHover position="bottom-left" />
+      </div>
+    </ClerkProvider>
   );
 };
 
