@@ -1,16 +1,15 @@
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Search, Play, PawPrint } from "lucide-react";
 import { useRouter } from "next/router";
 import { SignInButton,
           SignedOut,
           useUser} from '@clerk/nextjs'
 
-import { api } from "~/utils/api";
+import CatCarousel from "~/component/carousel";
 
 export default function Home() {
-  // const hello = api.post.hello.useQuery({ text: "from tRPC" });
   const router = useRouter();
 
   return (
@@ -21,7 +20,7 @@ export default function Home() {
         <link rel="icon" href="/ava.png"/>
       </Head>
 
-      <div className="flex items-center justify-between p-3 bg-[#fab24e]">
+      <div className="flex items-center justify-between p-4 bg-[#fab24e]">
         <div className="flex items-center gap-5">
           <div className="flex items-center gap-2">
             <Image
@@ -34,7 +33,7 @@ export default function Home() {
             <span className="text-[20px] font-medium"> Clementine Cat</span>
           </div>
 
-          <div className="flex justify-center text-[15px] gap-2">
+          <div className="flex justify-center text-[15px] gap-3">
             <Link
               href="/home"
               className="flex items-center font-medium hover:text-gray-700 hover:underline cursor-pointer"
@@ -77,15 +76,6 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="flex items-center -mb-7 mr-70">
-          <Image
-            src="/cat-sleep.png"
-            alt="Cat sleeping"
-            width={200}
-            height={200}
-          />
-        </div>
-
         <div className="flex items-center gap-2">
             <SignedOut>
               <SignInButton mode="modal">
@@ -102,14 +92,172 @@ export default function Home() {
           </div>
       </div>
 
-      {/* <main className="flex flex-1 items-center justify-center bg-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-          <h1 className="text-4xl font-bold">Welcome to Clementine Cats</h1>
-          <p className="text-lg text-center">
-            Your one-stop solution for adopting and caring for cats.
+      <main
+className="relative min-h-screen flex flex-row items-center justify-between bg-[#fffbf5] 
+            bg-[url('/bg.png')] bg-no-repeat bg-cover px-12"
+>
+        {/* Left: Text */}
+        <div className="flex-1 flex flex-col items-center text-center gap-6">
+          <div className="flex flex-wrap items-baseline text-[60px] font-bold gap-2">
+            <h1>Looking for a</h1>
+            <h1 className="text-[#fab24e]">feline</h1>
+            <h1 >friend?</h1>
+          </div>
+
+          <p className="max-w-xl text-[20px] font-normal leading-relaxed text-gray-700">
+            Helping cats find loving families — whether you&apos;re after a playful kitten
+            or a calm companion, your purr-fect match is just a click away!.
           </p>
+
+          <div className="box-border p-8 border-2 border-gray-300 rounded-md shadow-md bg-white/60 flex items-center gap-10 text-gray-700">
+            <div className="flex flex-col">
+              <span className="font-medium">76</span>
+              <span className="text-[15px]">Waiting for homes</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="font-medium">180</span>
+              <span className="text-[15px]">Adopted last year</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="font-medium">200</span>
+              <span className="text-[15px]">Rescued</span>
+            </div>
+          </div>
+
+          <button className="flex items-center gap-3 px-4 py-3 bg-[#fab24e] text-white font-medium rounded-full hover:bg-amber-600">
+            <Play className="h-5 w-5" />
+            <span className="text-[17px] font-medium">Get started</span>
+          </button>
         </div>
-      </main> */}
+
+        <div className="flex-1 flex flex-col items-center text-center gap-6">
+          <div role="search" className="w-full max-w-[360px] mx-auto">
+            <div className="flex items-center border border-gray-300 bg-white rounded-full px-5 py-2.5 w-full focus-within:ring-2 focus-within:ring-[#fab24e]">
+              <Search className="h-5 w-5 text-gray-400 mr-2" />
+              <input
+                type="text"
+                placeholder="Search for cats by breed, age, or location"
+                className="w-full outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="w-full max-w-[360px] mx-auto">
+            <CatCarousel />
+          </div>
+        </div>
+      </main>
+
+      {/* Tips section */}
+      <section className="relative bg-white py-16">
+        <div className="mx-auto max-w-6xl px-6 grid md:grid-cols-2 gap-10 items-center">
+          <div className="relative">
+            <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-br from-amber-100/70 via-white to-transparent blur-2xl" />
+            <Image
+              src="/texudo.png"
+              alt="Tuxedo cat"
+              width={420}
+              height={360}
+              className="h-auto w-auto drop-shadow-xl"
+              priority={false}
+            />
+          </div>
+
+          {/* RIGHT: heading + tidy two-column tips + badges */}
+          <div className="text-gray-700">
+            <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">
+              Do you know these tips to take care of a rescue cat?
+            </h2>
+
+            <ul className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                {
+                  title: "Set up a safe room",
+                  body: "Quiet space with bed, litter box, water, and a hiding spot.",
+                },
+                {
+                  title: "Go slow",
+                  body: "Introduce rooms & people gradually; let the cat set the pace.",
+                },
+                {
+                  title: "Vet within 7 days",
+                  body: "Health check, parasite control, update microchip details.",
+                },
+                {
+                  title: "Steady meals",
+                  body: "Fixed schedule; transition food over 5–7 days to avoid upsets.",
+                },
+                {
+                  title: "Litter rule",
+                  body: "1 box per cat + 1, scoop daily, unscented clumping litter.",
+                },
+                {
+                  title: "Scratching posts",
+                  body: "Place near sleeping spots/doorways; reward scratching there.",
+                },
+                {
+                  title: "Play & enrich",
+                  body: "2×10–15 min wand-toy sessions; add perches & window views.",
+                },
+                {
+                  title: "Pet-proof",
+                  body: "Secure windows, hide cords, remove toxic plants & tiny items.",
+                },
+              ].map((tip) => (
+                <li key={tip.title} className="flex items-start gap-3">
+                  <PawPrint className="mt-1 text-amber-600"/>
+                  <div>
+                    <p className="font-medium text-gray-900">{tip.title}</p>
+                    <p className="text-sm text-gray-600">{tip.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            {/* Badges */}
+            <div className="mt-6 flex flex-wrap gap-2">
+              {["First-week checklist", "Vet visit", "Feeding plan", "Litter setup", "Enrichment"].map(
+                (t) => (
+                  <span
+                    key={t}
+                    className="px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200"
+                  >
+                    {t}
+                  </span>
+                ),
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#fffbf5] py-16">
+        <div className="mx-auto max-w-6xl px-6 text-center">
+          <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">
+            Clementine Cats Newsletter
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+            <div className="flex flex-col items-start border border-gray-300 rounded-lg p-6 bg-white text-left">
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Stay Updated!</h3>
+              <p className="text-gray-700 mb-4">Subscribe to our newsletter for the latest cat adoption stories, tips, and events.</p>
+            </div>
+
+            <div className="flex flex-col items-start border border-gray-300 rounded-lg p-6 bg-white text-left">
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Stay Updated!</h3>
+              <p className="text-gray-700 mb-4">Subscribe to our newsletter for the latest cat adoption stories, tips, and events.</p>
+            </div>
+
+            <div className="flex flex-col items-start border border-gray-300 rounded-lg p-6 bg-white text-left">
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Stay Updated!</h3>
+              <p className="text-gray-700 mb-4">Subscribe to our newsletter for the latest cat adoption stories, tips, and events.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#fab24e] py-16">
+
+      </section>
     </>
   );
 }
