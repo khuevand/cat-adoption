@@ -214,7 +214,6 @@ className="relative min-h-screen flex flex-row items-center justify-between bg-[
               ))}
             </ul>
 
-            {/* Badges */}
             <div className="mt-6 flex flex-wrap gap-2">
               {["First-week checklist", "Vet visit", "Feeding plan", "Litter setup", "Enrichment"].map(
                 (t) => (
