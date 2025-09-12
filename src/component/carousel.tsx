@@ -66,8 +66,7 @@ function CatCard({ src, alt, text, tags }: Cat) {
         />
       </div>
 
-      {/* White board under the image for tags/caption */}
-      <div className="border-t border-gray-300 px-4 py-7 bg-white">
+]      <div className="border-t border-gray-300 px-4 py-7 bg-white">
         <div className="flex flex-wrap gap-2">
           {tags.map((t) => (
             <span

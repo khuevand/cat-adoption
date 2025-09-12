@@ -149,7 +149,6 @@ className="relative min-h-screen flex flex-row items-center justify-between bg-[
         </div>
       </main>
 
-      {/* Tips section */}
       <section className="relative bg-white py-16">
         <div className="mx-auto max-w-6xl px-6 grid md:grid-cols-2 gap-10 items-center">
           <div className="relative">
@@ -164,7 +163,6 @@ className="relative min-h-screen flex flex-row items-center justify-between bg-[
             />
           </div>
 
-          {/* RIGHT: heading + tidy two-column tips + badges */}
           <div className="text-gray-700">
             <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 tracking-tight">
               Do you know these tips to take care of a rescue cat?
@@ -178,7 +176,7 @@ className="relative min-h-screen flex flex-row items-center justify-between bg-[
                 },
                 {
                   title: "Go slow",
-                  body: "Introduce rooms & people gradually; let the cat set the pace.",
+                  body: "Introduce rooms & people gradually, let the cat set the pace.",
                 },
                 {
                   title: "Vet within 7 days",
@@ -186,19 +184,19 @@ className="relative min-h-screen flex flex-row items-center justify-between bg-[
                 },
                 {
                   title: "Steady meals",
-                  body: "Fixed schedule; transition food over 5–7 days to avoid upsets.",
+                  body: "Fixed schedule, transition food over 5–7 days to avoid upsets.",
                 },
                 {
                   title: "Litter rule",
-                  body: "1 box per cat + 1, scoop daily, unscented clumping litter.",
+                  body: "1 box per cat + 1 scoop daily, unscented clumping litter.",
                 },
                 {
                   title: "Scratching posts",
-                  body: "Place near sleeping spots/doorways; reward scratching there.",
+                  body: "Place near sleeping spots/doorways, reward scratching there.",
                 },
                 {
                   title: "Play & enrich",
-                  body: "2×10–15 min wand-toy sessions; add perches & window views.",
+                  body: "2×10–15 min wand-toy sessions, add perches & window views.",
                 },
                 {
                   title: "Pet-proof",
