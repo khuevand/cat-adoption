@@ -18,7 +18,7 @@ export default function Home() {
       <PageLoading />
     }
     if (isSignedIn && router.pathname === "/"){
-      router.push("/adopt");
+      void router.push("/adopt");
     }
   }, [isSignedIn, isLoaded, router]);
 
