@@ -5,7 +5,6 @@ import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import { neobrutalism } from '@clerk/themes'
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (

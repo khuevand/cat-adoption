@@ -1,17 +1,27 @@
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronRight, Search, Play, PawPrint, Mail } from "lucide-react";
+import { Search, Play, PawPrint, Mail } from "lucide-react";
 import { FaInstagram, FaTiktok } from "react-icons/fa";
 import { useRouter } from "next/router";
-import { SignInButton,
-          SignedOut,
-          useUser} from '@clerk/nextjs'
-
+import { useUser} from '@clerk/nextjs'
+import { useEffect } from "react";
+import PageLoading from "~/component/loadingPage";
 import CatCarousel from "~/component/carousel";
+import Navigation from "~/component/navigationTab";
 
 export default function Home() {
   const router = useRouter();
+  const { isLoaded, isSignedIn } = useUser();
+
+  useEffect(() => {
+    if (!isLoaded && router.pathname === "/"){
+      <PageLoading />
+    }
+    if (isSignedIn && router.pathname === "/"){
+      router.push("/adopt");
+    }
+  }, [isSignedIn, isLoaded, router]);
 
   return (
     <>
@@ -21,83 +31,11 @@ export default function Home() {
         <link rel="icon" href="/ava.png"/>
       </Head>
 
-      <div className="flex items-center justify-between p-4 bg-[#fab24e]">
-        <div className="flex items-center gap-5">
-          <div className="flex items-center gap-2">
-            <Image
-              src="/ava.png"
-              alt="Clementine Cat Logo"
-              className="rounded-full"
-              width={40}
-              height={40}
-            />
-            <span className="text-[20px] font-medium"> Clementine Cat</span>
-          </div>
+      <Navigation isSignedIn={false} />
 
-          <div className="flex justify-center text-[15px] gap-3">
-            <Link
-              href="/home"
-              className="flex items-center font-medium hover:text-gray-700 hover:underline cursor-pointer"
-            >
-              <span>Home</span>
-              <ChevronRight className="ml-1 h-3 w-3 shrink-0" />
-            </Link>
+      <main className="relative min-h-screen flex flex-row items-center justify-between bg-[#fffbf5] 
+            bg-[url('/bg.png')] bg-no-repeat bg-cover px-12">
 
-            <Link
-              href="/donate"
-              className="flex items-center font-medium hover:text-gray-700 hover:underline cursor-pointer"
-            >
-              <span>Donate</span>
-              <ChevronRight className="ml-1 h-3 w-3 shrink-0" />
-            </Link>
-
-            <Link
-              href="/adopt"
-              className="flex items-center font-medium hover:text-gray-700 hover:underline cursor-pointer"
-            >
-              <span>Adopt</span>
-              <ChevronRight className="ml-1 h-3 w-3 shrink-0" />
-            </Link>
-
-            <Link
-              href="/contact"
-              className="flex items-center font-medium hover:text-gray-700 hover:underline cursor-pointer"
-            >
-              <span>Contact</span>
-              <ChevronRight className="ml-1 h-3 w-3 shrink-0" />
-            </Link>
-
-            <Link
-              href="/information"
-              className="flex items-center font-medium hover:text-gray-700 hover:underline cursor-pointer"
-            >
-              <span>About us</span>
-              <ChevronRight className="ml-1 h-3 w-3 shrink-0" />
-            </Link>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button className="text-[15px] text-white font-medium rounded-xl px-3 py-2 bg-black hover:bg-gray-700 hover:text-white cursor-pointer">
-                  Sign up
-                </button>
-              </SignInButton>
-              <SignInButton mode="modal">
-                <button className="text-[15px] font-medium rounded-xl px-3 py-2 bg-white hover:bg-gray-100 hover:text-gray-800 cursor-pointer">
-                  Log in
-                </button>
-              </SignInButton>
-            </SignedOut>
-          </div>
-      </div>
-
-      <main
-className="relative min-h-screen flex flex-row items-center justify-between bg-[#fffbf5] 
-            bg-[url('/bg.png')] bg-no-repeat bg-cover px-12"
->
-        {/* Left: Text */}
         <div className="flex-1 flex flex-col items-center text-center gap-6">
           <div className="flex flex-wrap items-baseline text-[60px] font-bold gap-2">
             <h1>Looking for a</h1>
