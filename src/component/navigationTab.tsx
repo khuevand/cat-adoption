@@ -37,7 +37,7 @@ export default function Navigation({ isSignedIn }: NavigationProps){
         <div className="flex justify-center text-[15px] gap-3">
           <Link
             href="/donate"
-            className="flex items-center font-medium hover:text-gray-700 hover:underline cursor-pointer"
+            className={`flex items-center font-medium ${router.pathname === "/donate" ? "underline underline-offset-4" : ""} hover:text-gray-700 hover:underline cursor-pointer`}
           >
             <span>Donate</span>
             <ChevronRight className="ml-1 h-3 w-3 shrink-0" />
@@ -45,7 +45,7 @@ export default function Navigation({ isSignedIn }: NavigationProps){
 
           <Link
             href="/adopt"
-            className="flex items-center font-medium hover:text-gray-700 hover:underline cursor-pointer"
+            className={`flex items-center font-medium ${router.pathname === "/adopt" ? "underline underline-offset-4" : ""} hover:text-gray-700 hover:underline cursor-pointer`}
           >
             <span>Adopt</span>
             <ChevronRight className="ml-1 h-3 w-3 shrink-0" />
@@ -53,7 +53,7 @@ export default function Navigation({ isSignedIn }: NavigationProps){
           
           <Link
             href="/lost"
-            className="flex items-center font-medium hover:text-gray-700 hover:underline cursor-pointer"
+            className={`flex items-center font-medium ${router.pathname === "/lost" ? "underline underline-offset-4" : ""} hover:text-gray-700 hover:underline cursor-pointer`}
           >
             <span>Lost cat</span>
             <ChevronRight className="ml-1 h-3 w-3 shrink-0" />
@@ -61,7 +61,7 @@ export default function Navigation({ isSignedIn }: NavigationProps){
 
           <Link
             href="/contact"
-            className="flex items-center font-medium hover:text-gray-700 hover:underline cursor-pointer"
+            className={`flex items-center font-medium ${router.pathname === "/contact" ? "underline underline-offset-4" : ""} hover:text-gray-700 hover:underline cursor-pointer`}
           >
             <span>Contact</span>
             <ChevronRight className="ml-1 h-3 w-3 shrink-0" />
@@ -69,7 +69,7 @@ export default function Navigation({ isSignedIn }: NavigationProps){
 
           <Link
             href="/information"
-            className="flex items-center font-medium hover:text-gray-700 hover:underline cursor-pointer"
+            className={`flex items-center font-medium ${router.pathname === "/information" ? "underline underline-offset-4" : ""} hover:text-gray-700 hover:underline cursor-pointer`}
           >
             <span>About us</span>
             <ChevronRight className="ml-1 h-3 w-3 shrink-0" />

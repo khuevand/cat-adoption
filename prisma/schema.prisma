@@ -3,20 +3,92 @@
 
 generator client {
     provider = "prisma-client-js"
-    url       = env("DATABASE_URL")
-    directUrl = env("DIRECT_URL")
 }
 
 datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
+enum Sex {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+enum ApplicationStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  WITHDRAWN
+}
+
+model User {
+    id String @id
+    name String
+    email String
+    createdAt DateTime @default(now())
+    applications Application[]
+    donation Donation[]
+    totalDonation Int
+    cat Cat[]   
+
+    @@index([email])
+}
+
+model Admin {
+    id String @id
+    name String
+    email String
+    createdAt DateTime @default(now())
+    applications Application[]
+
+    @@index([email])
+}
+
+model Donation {
+    id String @id @default(cuid())
+    total Int
+    user User @relation(fields: [userId], reference: [id])
+    userId String
+
+    @@index([id])
+}
+
+model Applications {
+    id String @id @default(cuid())
+    cat Cat @relation(fields: [catId], reference: [id], onDelete: Cascade)
+    catId String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    form String
+    user User @relation(fields: [userId], reference: [id], onDelete: Cascade)
+    admin Admin @relation(fields: [adminId], reference: [id], onDelete: Cascade)
+    userId String
+    adminId String
+    status ApplicationStatus @default(PENDING)
+    form Json
 
-    @@index([name])
+    @@index([userId])
+    @@index([adminId])
+    @@index([catId, status])
 }
+
+model Cat {
+    id String @id @default(cuid())
+    name String
+    sex Sex @default(UNKNOW)
+    ageMonths Int
+    desexed boolean
+    vaccine boolean
+    description String
+    status String @default(AVAILABLE)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    user User @relation(fields: [userId], reference: [id], onDelete: Cascade)
+
+    @@index([id])
+}
+
