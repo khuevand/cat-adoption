@@ -1,4 +1,5 @@
 import {useState, useEffect} from "react";
+import { useUser} from '@clerk/nextjs'
 import PageLoading from "~/component/loadingPage";
 import Navigation from "~/component/navigationTab";
 import Head from "next/head";
@@ -6,6 +7,7 @@ import Image from "next/image";
 import Footer from "~/component/footer";
 
 export default function Donate(){
+  const {isSignedIn} = useUser();
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     setIsLoading(true);
@@ -25,7 +27,7 @@ export default function Donate(){
 
       <main className="h-full w-full flex flex-col bg-[#fffbf5] gap-10">
         {isLoading && <PageLoading />}
-        <Navigation isSignedIn={false} />
+        <Navigation isSignedIn={isSignedIn} />
 
         <div className="flex items-center ml-30 mt-10">
           <Image

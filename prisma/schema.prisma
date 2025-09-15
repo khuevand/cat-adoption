@@ -79,15 +79,16 @@ model Applications {
 model Cat {
     id String @id @default(cuid())
     name String
-    sex Sex @default(UNKNOW)
+    sex Sex @default(UNKNOWN)
     ageMonths Int
-    desexed boolean
-    vaccine boolean
+    desexed boolean @default(false)
+    vaccinated boolean @default(false)
     description String
     status String @default(AVAILABLE)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     user User @relation(fields: [userId], reference: [id], onDelete: Cascade)
+    userId String ?
 
     @@index([id])
 }
