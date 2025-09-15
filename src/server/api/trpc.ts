@@ -6,13 +6,11 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { getAuth } from "@clerk/nextjs/server";
+import { getAuth, clerkClient } from "@clerk/nextjs/server";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
-import { clerkClient } from "node_modules/@clerk/nextjs/dist/types/server/clerkClient";
 import superjson from "superjson";
 import { ZodError } from "zod";
-
 import { db } from "~/server/db";
 
 /**
@@ -133,11 +131,11 @@ const enforceAuthed = t.middleware(({ ctx, next }) => {
 });
 
 // Admin via Clerk publicMetadata.role === 'admin'
-const enforceAdmin = t.middleware(({ ctx, next }) => {
-  const role = (ctx.auth?.sessionClaims?.publicMetadata as any)?.role;
-  if (role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
-  return next();
-});
+// const enforceAdmin = t.middleware(({ ctx, next }) => {
+//   const role = (ctx.auth?.sessionClaims?.publicMetadata as any)?.role;
+//   if (role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
+//   return next();
+// });
 
 export const protectedProcedure = publicProcedure.use(enforceAuthed);
-export const adminProcedure = protectedProcedure.use(enforceAdmin);
+// export const adminProcedure = protectedProcedure.use(enforceAdmin);
