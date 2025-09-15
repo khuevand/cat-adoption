@@ -6,8 +6,10 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from "@trpc/server";
+import { getAuth } from "@clerk/nextjs/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { clerkClient } from "node_modules/@clerk/nextjs/dist/types/server/clerkClient";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
@@ -45,8 +47,9 @@ const createInnerTRPCContext = (_opts: CreateContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = (_opts: CreateNextContextOptions) => {
-  return createInnerTRPCContext({});
+export const createTRPCContext = async ({ req }: CreateNextContextOptions) => {
+  const a = getAuth(req); // { userId, sessionId, sessionClaims, ... }
+  return { db, auth: a, clerk: clerkClient };
 };
 
 /**
@@ -123,3 +126,18 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * are logged in.
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
+
+const enforceAuthed = t.middleware(({ ctx, next }) => {
+  if (!ctx.auth?.userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+  return next({ ctx: { ...ctx, userId: ctx.auth.userId } });
+});
+
+// Admin via Clerk publicMetadata.role === 'admin'
+const enforceAdmin = t.middleware(({ ctx, next }) => {
+  const role = (ctx.auth?.sessionClaims?.publicMetadata as any)?.role;
+  if (role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
+  return next();
+});
+
+export const protectedProcedure = publicProcedure.use(enforceAuthed);
+export const adminProcedure = protectedProcedure.use(enforceAdmin);

@@ -25,71 +25,100 @@ enum ApplicationStatus {
   WITHDRAWN
 }
 
-model User {
-    id String @id
-    name String
-    email String
-    createdAt DateTime @default(now())
-    applications Application[]
-    donation Donation[]
-    totalDonation Int
-    cat Cat[]   
+enum CatStatus {
+  AVAILABLE
+  ADOPTED
+}
 
-    @@index([email])
+model User {
+  id String @id
+  name String? 
+  email String? @unique
+  createdAt DateTime @default(now())
+  applications Application[]
+  donation Donation[]
+  totalDonation Int @default(0)
+  cat Cat[]  
 }
 
 model Admin {
-    id String @id
-    name String
-    email String
-    createdAt DateTime @default(now())
-    applications Application[]
+  id String @id
+  name String?
+  email String? @unique
+  createdAt DateTime @default(now())
+  listCats Cat[]
+  catImages CatImage[]
+  applicationUploaded Application[]
 
-    @@index([email])
+  @@index([id])
 }
 
 model Donation {
-    id String @id @default(cuid())
-    total Int
-    user User @relation(fields: [userId], reference: [id])
-    userId String
-
-    @@index([id])
+  id String @id @default(cuid())
+  total Int
+  user User @relation(fields: [userId], references: [id])
+  userId String
+  createdAt DateTime @default(now())
 }
 
-model Applications {
-    id String @id @default(cuid())
-    cat Cat @relation(fields: [catId], reference: [id], onDelete: Cascade)
-    catId String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    form String
-    user User @relation(fields: [userId], reference: [id], onDelete: Cascade)
-    admin Admin @relation(fields: [adminId], reference: [id], onDelete: Cascade)
-    userId String
-    adminId String
-    status ApplicationStatus @default(PENDING)
-    form Json
+model Application {
+  id String @id @default(cuid())
+  cat Cat @relation(fields: [catId], references: [id], onDelete: Cascade)
+  catId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  status ApplicationStatus @default(PENDING)
+  form Json
 
-    @@index([userId])
-    @@index([adminId])
-    @@index([catId, status])
+  decidedById  String?
+  decidedBy Admin? @relation(fields: [decidedById], references: [id], onDelete: SetNull)
+  decidedAt DateTime?
+  decisionNote String?
+
+  @@index([userId])
+  @@index([catId, status])
+  @@index([decidedById])
+  @@index([decidedAt])
 }
 
 model Cat {
-    id String @id @default(cuid())
-    name String
-    sex Sex @default(UNKNOWN)
-    ageMonths Int
-    desexed boolean @default(false)
-    vaccinated boolean @default(false)
-    description String
-    status String @default(AVAILABLE)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    user User @relation(fields: [userId], reference: [id], onDelete: Cascade)
-    userId String ?
+  id String @id @default(cuid())
+  name String
+  sex Sex @default(UNKNOWN)
+  ageMonths Int
+  desexed Boolean @default(false)
+  vaccinated Boolean @default(false)
+  description String
+  status CatStatus @default(AVAILABLE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  owner User? @relation(fields: [userId], references: [id])
+  listedBy Admin @relation(fields: [adminId], references: [id])
+  userId String ?
+  adminId String
+  applications Application[]
+  images CatImage[]
+  primaryImageUrl String?
 
-    @@index([id])
+  @@index([status])
+  @@index([userId])
+  @@index([adminId])
 }
 
+model CatImage {
+  id String @id @default(cuid())
+  cat Cat @relation(fields: [catId], references: [id], onDelete: Cascade)
+  catId String
+  url String
+  sizeBytes Int?
+  alt String?
+  isPrimary Boolean @default(false)
+  uploadedBy Admin @relation(fields: [uploadedById], references: [id])
+  uploadedById String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([catId, isPrimary])
+}
