@@ -106,7 +106,6 @@ model Cat {
   images CatImage[]
   primaryImageUrl String?
 
-  @@index([status])
   @@index([ageMonths])
   @@index([sex])
   @@index([status])
