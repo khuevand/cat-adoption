@@ -27,7 +27,9 @@ enum ApplicationStatus {
 
 enum CatStatus {
   AVAILABLE
+  PENDING
   ADOPTED
+  FOSTERED
 }
 
 model User {
@@ -86,10 +88,12 @@ model Application {
 model Cat {
   id String @id @default(cuid())
   name String
+  breed String
   sex Sex @default(UNKNOWN)
   ageMonths Int
   desexed Boolean @default(false)
   vaccinated Boolean @default(false)
+  microchipped Boolean @default(false)
   description String
   status CatStatus @default(AVAILABLE)
   createdAt DateTime @default(now())
@@ -102,6 +106,9 @@ model Cat {
   images CatImage[]
   primaryImageUrl String?
 
+  @@index([status])
+  @@index([ageMonths])
+  @@index([sex])
   @@index([status])
   @@index([userId])
   @@index([adminId])

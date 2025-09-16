@@ -6,9 +6,14 @@ import Footer from "~/component/footer";
 import { Cat, Search, ListFilter, ArrowUpDown, Upload } from "lucide-react"
 import Navigation from "~/component/navigationTab";
 import PageLoading from "~/component/loadingPage";
+import { api } from "~/utils/api";
 export default function Adopt(){
   const {isSignedIn} = useUser();
   const [isLoading, setIsLoading] = useState(false);
+
+  const {data: allCats = [],
+        isLoading: isCatLoading} = api.cat.getAllCats.useQuery(undefined, {initialData: []});
+
   useEffect(() => {
     setIsLoading(true);
     const timer = setTimeout(() => {
@@ -16,6 +21,12 @@ export default function Adopt(){
     }, 2000);
     return () => clearTimeout(timer);
   }, []);
+
+  // useEffect(() => {
+  //   if(allCats === undefined)
+  //     return;
+  // });
+
   return(
     <>
       <Head>
@@ -24,7 +35,7 @@ export default function Adopt(){
         <link rel="icon" href="/ava.png"/>
       </Head>
 
-      <main className="h-full w-full flex flex-col bg-[#fffbf5] gap-10">
+      <main className="h-screen w-screen flex flex-col bg-[#fffbf5] gap-10">
         {isLoading && <PageLoading />}
         <Navigation isSignedIn={isSignedIn}/>
         <div className="flex flex-col items-center gap-6">
@@ -63,8 +74,26 @@ export default function Adopt(){
             </button>
           </div>
 
-          <div className="grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 px-10">
-          </div>
+          {isCatLoading && (<PageLoading/>)}
+          {allCats.length === 0 ? (
+            <div className="flex flex-col items-center h-full text-[#4c361d] text-[16px] font-medium gap-1">
+              <span>Our lovely cats have found their homes!</span>
+              <span>Check back soon - we will introduce new whiskered friends shortly. </span>
+              <video
+                src="/cat-love.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="h-100 w-100 rounded-xl object-cover outline-4 outline-offset-4 outline-dashed outline-[#fab24e] mt-4"
+              />
+
+            </div>
+          ): (
+            <div className="grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 px-10">
+              <span>hello</span>
+            </div>
+          )}
         </div>
       </main>
     </>
