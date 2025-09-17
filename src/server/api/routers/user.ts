@@ -2,8 +2,9 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure, privateProcedure } from "~/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
-  me: privateProcedure 
+  me: publicProcedure 
     .query(async ({ctx}) => {
+      if (!ctx.currentUser) return null;
       return await ctx.db.user.findUnique({
         where: {id: ctx.currentUser.id},
         select: {
@@ -19,6 +20,7 @@ export const userRouter = createTRPCRouter({
   getUserById: privateProcedure
     .input(z.object({ id: z.string()}))
     .query(async ({ ctx, input }) => {
+      if (!ctx.currentUser) return;
       const user = await ctx.db.user.findUnique({
         where: {
           id: input.id,
@@ -36,6 +38,7 @@ export const userRouter = createTRPCRouter({
 
   getAllUsers: privateProcedure
     .query(async ({ ctx }) => {
+      if (!ctx.currentUser) return;
       return await ctx.db.user.findMany({
         select: {
           id: true,
@@ -49,6 +52,7 @@ export const userRouter = createTRPCRouter({
   getDonation: privateProcedure
     .input(z.object({ userId: z.string()}))
     .query(async ({ ctx, input}) => {
+      if (!ctx.currentUser) return;
       return await ctx.db.user.findMany({
         where: {
           id: input.userId
@@ -62,6 +66,7 @@ export const userRouter = createTRPCRouter({
   getApplication: privateProcedure
     .input(z.object({ userId: z.string()}))
     .query(async ({ctx, input}) => {
+      if (!ctx.currentUser) return;
       return await ctx.db.application.findMany({
         where: {
           userId: input.userId

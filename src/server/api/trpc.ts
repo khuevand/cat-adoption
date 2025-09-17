@@ -65,9 +65,9 @@ export const createTRPCContext = async ({ req }: CreateNextContextOptions) => {
         clerkUser.emailAddresses?.[0]?.emailAddress ??
         null;
       
-      const userRole = clerkUser.publicMetadata.role 
+      const rawRole = (clerkUser.publicMetadata as Record<string, unknown>)?.role;
 
-      const normalizedRole: Role = userRole && userRole.toString().toUpperCase() === "ADMIN" ? "ADMIN" : "USER";
+      const normalizedRole: Role = typeof rawRole === "string" && rawRole.toUpperCase() === "ADMIN" ? "ADMIN" : "USER";
 
       const dbUser = await db.user.upsert({
         where: { id: clerkUser.id },

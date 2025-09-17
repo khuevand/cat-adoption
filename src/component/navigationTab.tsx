@@ -2,22 +2,28 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { SignInButton, SignOutButton, SignedOut } from "@clerk/nextjs";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { LogOut, File, User } from "lucide-react";
 import { useRouter } from "next/router";
 import { api } from "~/utils/api";
 
 export default function Navigation(){
-  const { user, isSignedIn } = useUser();
+  const { user, isLoaded, isSignedIn } = useUser();
   const router = useRouter();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const toggleMenu = () => {
     setIsProfileMenuOpen(!isProfileMenuOpen);
   };
 
-  const {data: me} = api.user.me.useQuery(undefined, {enabled: isSignedIn });
+  // useEffect(() => {
+  //   if (!isLoaded || !isSignedIn){
+  //     return;
+  //   }
+  // })
 
+  const {data: me} = api.user.me.useQuery(undefined, {enabled: isLoaded, retry: false, refetchOnWindowFocus: false,});
+  
   return(
     <div className="flex items-center justify-between p-4 bg-[#fab24e]">
       <div className="flex items-center gap-5">
