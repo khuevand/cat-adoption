@@ -32,27 +32,24 @@ enum CatStatus {
   FOSTERED
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id String @id
   name String? 
   email String? @unique
+  role Role @default(USER)
   createdAt DateTime @default(now())
   applications Application[]
   donation Donation[]
   totalDonation Int @default(0)
-  cat Cat[]  
-}
-
-model Admin {
-  id String @id
-  name String?
-  email String? @unique
-  createdAt DateTime @default(now())
-  listCats Cat[]
-  catImages CatImage[]
-  applicationUploaded Application[]
-
-  @@index([id])
+  cat Cat[]
+  listedCats Cat[] @relation("ListedByUser")
+  decidedApps Application[] @relation("DecidedByUser")
+  uploadedImages CatImage[] @relation("UploadedByUser")
 }
 
 model Donation {
@@ -74,14 +71,14 @@ model Application {
   status ApplicationStatus @default(PENDING)
   form Json
 
-  decidedById  String?
-  decidedBy Admin? @relation(fields: [decidedById], references: [id], onDelete: SetNull)
+  decidedByUser User? @relation("DecidedByUser", fields: [decidedByUserId], references: [id], onDelete: SetNull)
+  decidedByUserId String?
   decidedAt DateTime?
   decisionNote String?
 
   @@index([userId])
   @@index([catId, status])
-  @@index([decidedById])
+  @@index([decidedByUserId])
   @@index([decidedAt])
 }
 
@@ -98,10 +95,13 @@ model Cat {
   status CatStatus @default(AVAILABLE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   owner User? @relation(fields: [userId], references: [id])
-  listedBy Admin @relation(fields: [adminId], references: [id])
   userId String ?
-  adminId String
+
+  listedBy User @relation("ListedByUser", fields: [listedByUserId], references: [id])
+  listedByUserId String
+
   applications Application[]
   images CatImage[]
   primaryImageUrl String?
@@ -110,7 +110,6 @@ model Cat {
   @@index([sex])
   @@index([status])
   @@index([userId])
-  @@index([adminId])
 }
 
 model CatImage {
@@ -121,8 +120,10 @@ model CatImage {
   sizeBytes Int?
   alt String?
   isPrimary Boolean @default(false)
-  uploadedBy Admin @relation(fields: [uploadedById], references: [id])
-  uploadedById String
+
+  uploadedBy User @relation("UploadedByUser", fields: [uploadedByUserId], references: [id])
+  uploadedByUserId String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

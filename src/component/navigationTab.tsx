@@ -4,20 +4,20 @@ import { ChevronRight } from "lucide-react";
 import { SignInButton, SignOutButton, SignedOut } from "@clerk/nextjs";
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { LogOut, File } from "lucide-react";
+import { LogOut, File, User } from "lucide-react";
 import { useRouter } from "next/router";
+import { Role } from '@prisma/client';
+import { api } from "~/utils/api";
 
-interface NavigationProps{
-  isSignedIn?: boolean;
-}
-
-export default function Navigation({ isSignedIn }: NavigationProps){
-  const { user } = useUser();
+export default function Navigation(){
+  const { user, isSignedIn } = useUser();
   const router = useRouter();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const toggleMenu = () => {
     setIsProfileMenuOpen(!isProfileMenuOpen);
   };
+
+  const {data: me} = api.user.me.useQuery(undefined, {enabled: isSignedIn });
 
   return(
     <div className="flex items-center justify-between p-4 bg-[#fab24e]">
@@ -74,6 +74,26 @@ export default function Navigation({ isSignedIn }: NavigationProps){
             <span>About us</span>
             <ChevronRight className="ml-1 h-3 w-3 shrink-0" />
           </Link>
+
+          {me?.role === "ADMIN" && (
+            <>
+              <Link 
+                href="/uploadCat"
+                className={`flex items-center font-medium $ {router.pathname === "/information" ? "underline underline-offset-4" : ""} hover:text-gray-700 hover:underline cursor-pointer`}
+              >
+                <span>Upload Cat</span>
+                <ChevronRight className="ml-1 h-3 w-3 shrink-0" />
+              </Link>
+
+              <Link 
+                href="/application"
+                className={`flex items-center font-medium ${router.pathname === "/information" ? "underline underline-offset-4" : ""} hover:text-gray-700 hover:underline cursor-pointer`}
+              >
+                <span>Application</span>
+                <ChevronRight className="ml-1 h-3 w-3 shrink-0" />
+              </Link>
+            </>
+          )}
         </div>
       </div>
 
@@ -84,9 +104,9 @@ export default function Navigation({ isSignedIn }: NavigationProps){
               <Image
                 src={user.imageUrl}
                 alt="User avatar"
-                className="rounded-full mt-2 ml-1 hover:ring-gray-100 hover:border-gray-100 cursor-pointer"
-                width={26}
-                height={26}
+                className="rounded-full hover:ring-gray-100 hover:border-gray-100 cursor-pointer"
+                width={32}
+                height={32}
               />
             )}
           </button>
@@ -101,6 +121,10 @@ export default function Navigation({ isSignedIn }: NavigationProps){
               <div className='mx-4 border-b border-gray-100'/>
               
               <div className="px-3 py-2">
+                  <div className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-100 cursor-pointer">
+                  <User className="w-3.5 h-3.5 text-amber-600" />
+                  <span>My profile</span>
+                </div>
                 <div className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-100 cursor-pointer">
                   <File className="w-3.5 h-3.5 text-amber-600" />
                   <span>My applications</span>

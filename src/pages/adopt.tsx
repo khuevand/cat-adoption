@@ -22,11 +22,6 @@ export default function Adopt(){
     return () => clearTimeout(timer);
   }, []);
 
-  // useEffect(() => {
-  //   if(allCats === undefined)
-  //     return;
-  // });
-
   return(
     <>
       <Head>
@@ -37,7 +32,7 @@ export default function Adopt(){
 
       <main className="h-screen w-screen flex flex-col bg-[#fffbf5] gap-10">
         {isLoading && <PageLoading />}
-        <Navigation isSignedIn={isSignedIn}/>
+        <Navigation/>
         <div className="flex flex-col items-center gap-6">
 
           <div className="flex items-center justify-center gap-2">

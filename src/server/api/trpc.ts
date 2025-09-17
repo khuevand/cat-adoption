@@ -6,12 +6,16 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { getAuth, clerkClient } from "@clerk/nextjs/server";
+import { clerkClient, currentUser, getAuth } from "@clerk/nextjs/server";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
 import { ZodError } from "zod";
+import { Role } from "@prisma/client";
 import { db } from "~/server/db";
+
+type CtxUser = { id: string; role: Role } | null;
+
 
 /**
  * 1. CONTEXT
@@ -45,10 +49,53 @@ const createInnerTRPCContext = (_opts: CreateContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
+
 export const createTRPCContext = async ({ req }: CreateNextContextOptions) => {
-  const a = getAuth(req); // { userId, sessionId, sessionClaims, ... }
-  return { db, auth: a, clerk: clerkClient };
+  const { userId } = getAuth(req);
+
+  let currentUser: CtxUser = null;
+
+  if (userId) {
+    try {
+      // 1) Read from Clerk
+      const clerkUser = await (await clerkClient()).users.getUser(userId);
+
+      const email =
+        clerkUser.primaryEmailAddress?.emailAddress ??
+        clerkUser.emailAddresses?.[0]?.emailAddress ??
+        null;
+      
+      const userRole = 
+        clerkUser.publicMetadata.role ??
+        clerkUser.publicMetadata.role as String | undefined;
+
+      const normalizedRole: Role = userRole && userRole.toString().toUpperCase() === "ADMIN" ? "ADMIN" : "USER";
+
+      const dbUser = await db.user.upsert({
+        where: { id: clerkUser.id },
+        create: {
+          id: clerkUser.id,
+          email: email ?? undefined,
+          name: clerkUser.firstName ?? undefined,
+          role: normalizedRole,
+        },
+        update: {
+          email: email ?? undefined,
+          name: clerkUser.firstName ?? undefined,
+          ...(normalizedRole === "ADMIN" ? { role: "ADMIN" } : {}),
+        },
+        select: { id: true, role: true }, // <- only what we need in ctx
+      });
+
+      currentUser = dbUser; // { id, role }
+    } catch (err) {
+      console.error("Failed to sync Clerk user:", err);
+    }
+  }
+
+  return { db, currentUser };
 };
+
 
 /**
  * 2. INITIALIZATION
@@ -125,17 +172,24 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  */
 export const publicProcedure = t.procedure.use(timingMiddleware);
 
-const enforceAuthed = t.middleware(({ ctx, next }) => {
-  if (!ctx.auth?.userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-  return next({ ctx: { ...ctx, userId: ctx.auth.userId } });
+const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.currentUser){
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+    });
+  }
+
+  return next({
+    ctx: {
+      currentUser: ctx.currentUser,
+    },
+  });
 });
 
-// Admin via Clerk publicMetadata.role === 'admin'
-// const enforceAdmin = t.middleware(({ ctx, next }) => {
-//   const role = (ctx.auth?.sessionClaims?.publicMetadata as any)?.role;
-//   if (role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
-//   return next();
-// });
+const isAdmin = t.middleware(({ ctx, next }) => {
+  if (ctx.currentUser?.role !== "ADMIN") throw new TRPCError({ code: "FORBIDDEN" });
+  return next();
+});
 
-export const protectedProcedure = publicProcedure.use(enforceAuthed);
-// export const adminProcedure = protectedProcedure.use(enforceAdmin);
+export const privateProcedure = t.procedure.use(enforceUserIsAuthed);
+export const adminProcedure = t.procedure.use(enforceUserIsAuthed).use(isAdmin);

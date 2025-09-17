@@ -1,8 +1,22 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure, privateProcedure } from "~/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
-  getUserById: protectedProcedure
+  me: privateProcedure 
+    .query(async ({ctx}) => {
+      return await ctx.db.user.findUnique({
+        where: {id: ctx.currentUser.id},
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+        }
+      })
+    }),
+
+  getUserById: privateProcedure
     .input(z.object({ id: z.string()}))
     .query(async ({ ctx, input }) => {
       const user = await ctx.db.user.findUnique({
@@ -13,13 +27,14 @@ export const userRouter = createTRPCRouter({
           id: true,
           name: true,
           email: true,
+          role: true,
           createdAt: true,
         }
       });
       return user;
     }),
 
-  getAllUsers: protectedProcedure
+  getAllUsers: privateProcedure
     .query(async ({ ctx }) => {
       return await ctx.db.user.findMany({
         select: {
@@ -31,7 +46,7 @@ export const userRouter = createTRPCRouter({
       })
     }),
 
-  getDonation: protectedProcedure
+  getDonation: privateProcedure
     .input(z.object({ userId: z.string()}))
     .query(async ({ ctx, input}) => {
       return await ctx.db.user.findMany({
@@ -44,7 +59,7 @@ export const userRouter = createTRPCRouter({
       });
     }),
   
-  getApplication: protectedProcedure
+  getApplication: privateProcedure
     .input(z.object({ userId: z.string()}))
     .query(async ({ctx, input}) => {
       return await ctx.db.application.findMany({

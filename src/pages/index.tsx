@@ -17,9 +17,9 @@ export default function Home() {
     if (!isLoaded && router.pathname === "/"){
       <PageLoading />
     }
-    if (isSignedIn && router.pathname === "/"){
-      void router.push("/adopt");
-    }
+    // if (isSignedIn && router.pathname === "/"){
+    //   void router.push("/adopt");
+    // }
   }, [isSignedIn, isLoaded, router]);
 
   return (
@@ -30,7 +30,7 @@ export default function Home() {
         <link rel="icon" href="/ava.png"/>
       </Head>
 
-      <Navigation isSignedIn={false} />
+      <Navigation />
 
       <main className="relative min-h-screen flex flex-row items-center justify-between bg-[#fffbf5] 
             bg-[url('/bg.png')] bg-no-repeat bg-cover px-12">
