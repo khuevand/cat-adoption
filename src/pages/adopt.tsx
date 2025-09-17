@@ -1,5 +1,4 @@
 import { useState, useEffect} from "react";
-import { useUser} from '@clerk/nextjs'
 import Image from "next/image";
 import Head from "next/head";
 import Footer from "~/component/footer";
@@ -8,7 +7,6 @@ import Navigation from "~/component/navigationTab";
 import PageLoading from "~/component/loadingPage";
 import { api } from "~/utils/api";
 export default function Adopt(){
-  const {isSignedIn} = useUser();
   const [isLoading, setIsLoading] = useState(false);
 
   const {data: allCats = [],
@@ -30,7 +28,7 @@ export default function Adopt(){
         <link rel="icon" href="/ava.png"/>
       </Head>
 
-      <main className="h-screen w-screen flex flex-col bg-[#fffbf5] gap-10">
+      <main className="h-full w-full flex flex-col bg-[#fffbf5] gap-10">
         {isLoading && <PageLoading />}
         <Navigation/>
         <div className="flex flex-col items-center gap-6">

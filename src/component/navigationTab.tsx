@@ -6,7 +6,6 @@ import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { LogOut, File, User } from "lucide-react";
 import { useRouter } from "next/router";
-import { Role } from '@prisma/client';
 import { api } from "~/utils/api";
 
 export default function Navigation(){
@@ -79,7 +78,7 @@ export default function Navigation(){
             <>
               <Link 
                 href="/uploadCat"
-                className={`flex items-center font-medium $ {router.pathname === "/information" ? "underline underline-offset-4" : ""} hover:text-gray-700 hover:underline cursor-pointer`}
+                className={`flex items-center font-medium ${router.pathname === "/uploadCat" ? "underline underline-offset-4" : ""} hover:text-gray-700 hover:underline cursor-pointer`}
               >
                 <span>Upload Cat</span>
                 <ChevronRight className="ml-1 h-3 w-3 shrink-0" />
@@ -87,7 +86,7 @@ export default function Navigation(){
 
               <Link 
                 href="/application"
-                className={`flex items-center font-medium ${router.pathname === "/information" ? "underline underline-offset-4" : ""} hover:text-gray-700 hover:underline cursor-pointer`}
+                className={`flex items-center font-medium ${router.pathname === "/application" ? "underline underline-offset-4" : ""} hover:text-gray-700 hover:underline cursor-pointer`}
               >
                 <span>Application</span>
                 <ChevronRight className="ml-1 h-3 w-3 shrink-0" />
