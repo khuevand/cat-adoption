@@ -65,9 +65,7 @@ export const createTRPCContext = async ({ req }: CreateNextContextOptions) => {
         clerkUser.emailAddresses?.[0]?.emailAddress ??
         null;
       
-      const userRole = 
-        clerkUser.publicMetadata.role ??
-        clerkUser.publicMetadata.role as String | undefined;
+      const userRole = clerkUser.publicMetadata.role 
 
       const normalizedRole: Role = userRole && userRole.toString().toUpperCase() === "ADMIN" ? "ADMIN" : "USER";
 
