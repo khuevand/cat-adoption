@@ -16,12 +16,6 @@ export default function Navigation(){
     setIsProfileMenuOpen(!isProfileMenuOpen);
   };
 
-  // useEffect(() => {
-  //   if (!isLoaded || !isSignedIn){
-  //     return;
-  //   }
-  // })
-
   const {data: me} = api.user.me.useQuery(undefined, {enabled: isLoaded, retry: false, refetchOnWindowFocus: false,});
   
   return(

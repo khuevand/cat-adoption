@@ -2,6 +2,10 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure, privateProcedure } from "~/server/api/trpc";
 import { CatStatus, Sex } from '@prisma/client';
 import type { Prisma } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
+import cloudinary from "cloudinary";
+
+
 
 const catSchema = z.object({
   statuses: z.array(z.nativeEnum(CatStatus)).min(1).optional(),
@@ -32,7 +36,7 @@ export const catRouter = createTRPCRouter({
       return await ctx.db.cat.findMany();
     }),
   
-  listCats: publicProcedure
+  searchCats: publicProcedure
     .input(catSchema)
     .query(async ({ ctx, input }) => {
       const {
@@ -82,7 +86,6 @@ export const catRouter = createTRPCRouter({
           desexed: true,
           vaccinated: true,
           status: true,
-          primaryImageUrl: true,
           createdAt: true,
         },
       });
@@ -92,5 +95,121 @@ export const catRouter = createTRPCRouter({
       const nextCursor = hasMore ? trimmed[trimmed.length - 1]?.id : undefined;
 
       return { items: trimmed, nextCursor };
+    }),
+
+  createCat: privateProcedure
+    .input(z.object({ 
+      name: z.string().min(1), 
+      ageMonths: z.number().min(0), 
+      sex: z.nativeEnum(Sex), 
+      breed: z.string().min(1), 
+      vaccinated: z.boolean(), 
+      desexed: z.boolean(), 
+      microchipped: z.boolean(), 
+      description: z.string().min(1),
+      imageFiles: z.array(z.string()).optional().default([]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const user = ctx.currentUser;
+      if (!user?.id || user.role !== "ADMIN") {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+
+      let imageUrls: string[] = [];
+
+      if (input.imageFiles && input.imageFiles.length > 0) {
+        for (let i = 0; i < input.imageFiles.length; i++) {
+          const imageFile = input.imageFiles[i];
+          if (!imageFile) {
+            throw new Error("Image file is undefined");
+          }
+
+          const uploadResponse = await cloudinary.v2.uploader.upload(imageFile, {
+            folder: "cats/images",
+          });
+
+          if (!uploadResponse.secure_url) {
+            throw new Error("Failed to upload image to Cloudinary");
+          }
+
+          imageUrls.push(uploadResponse.secure_url);
+        }
+      }
+
+      const cat = await ctx.db.cat.create({
+        data: {
+          name: input.name,
+          ageMonths: input.ageMonths,
+          breed: input.breed,
+          sex: input.sex,
+          desexed: input.desexed,
+          vaccinated: input.vaccinated,
+          microchipped: input.microchipped,
+          description: input.description,
+          images: imageUrls,
+          listedBy: { connect: { id: user.id } },
+        },
+      });
+
+      return cat;
+    }),
+  
+  deleteCat: privateProcedure
+    .input(z.object({catId: z.string()}))
+    .mutation(async ({ctx, input}) => {
+      const user = ctx.currentUser;
+      if (!user?.id || user.role !== "ADMIN") {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      const existingCat = await ctx.db.cat.findUnique({
+        where: { id: input.catId },
+        select: { 
+          listedByUserId: true,
+          images: true,
+          applications: {
+            select: { id: true }
+          }
+        }
+      });
+
+      if (!existingCat) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Cat not found" });
+      }
+
+      if (existingCat.listedByUserId !== user.id && user.role !== "ADMIN") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "You can only delete cats you created" });
+      }
+
+      if (existingCat.applications.length > 0) {
+        throw new TRPCError({ 
+          code: "CONFLICT", 
+          message: "Cannot delete cat with existing applications" 
+        });
+      }
+
+      if (existingCat.images.length > 0) {
+        for (let i = 0; i < existingCat.images.length; i++) {
+          const imageUrl = existingCat.images[i];
+          if (!imageUrl) {
+            throw new Error("Image file is undefined");
+          }
+
+          const publicId = imageUrl.split("/").pop()?.split(".")[0];
+          
+          if (publicId) {
+            try {
+              await cloudinary.v2.uploader.destroy(publicId); // Delete image from Cloudinary
+            } catch (error) {
+              console.error("Failed to delete image from Cloudinary:", error);
+            }
+          }
+
+          await ctx.db.cat.delete({
+            where: { id: input.catId },
+          });
+
+          return { message: "Cat deleted successfully" };
+        }
+      }
     }),
 });

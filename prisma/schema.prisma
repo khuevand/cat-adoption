@@ -49,7 +49,6 @@ model User {
   cat Cat[]
   listedCats Cat[] @relation("ListedByUser")
   decidedApps Application[] @relation("DecidedByUser")
-  uploadedImages CatImage[] @relation("UploadedByUser")
 }
 
 model Donation {
@@ -103,8 +102,7 @@ model Cat {
   listedByUserId String
 
   applications Application[]
-  images CatImage[]
-  primaryImageUrl String?
+  images String[] @default([])
 
   @@index([ageMonths])
   @@index([sex])
@@ -112,20 +110,3 @@ model Cat {
   @@index([userId])
 }
 
-model CatImage {
-  id String @id @default(cuid())
-  cat Cat @relation(fields: [catId], references: [id], onDelete: Cascade)
-  catId String
-  url String
-  sizeBytes Int?
-  alt String?
-  isPrimary Boolean @default(false)
-
-  uploadedBy User @relation("UploadedByUser", fields: [uploadedByUserId], references: [id])
-  uploadedByUserId String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([catId, isPrimary])
-}
